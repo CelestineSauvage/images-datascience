@@ -203,33 +203,14 @@ if command -v duckdb &>/dev/null; then
     fi
 fi
 
-# Duplicate the secret so that it is applied for R client, hopefully this will be temporary, see https://github.com/duckdb/duckdb/issues/21740
+# Set R extensions and secrets storage to the same place as the cli and python client
+# Print installed packages
 
 if command -v R >/dev/null 2>&1; then
-    if [[ -n "$AWS_S3_ENDPOINT" ]] ; then
-        if [[ -n "$AWS_PATH_STYLE_ACCESS" ]]; then
-            AWS_PATH_STYLE="path"
-        else
-            AWS_PATH_STYLE="vhost"
-        fi
 
-        Rscript -e "
-        library(DBI)
-        con <- dbConnect(duckdb::duckdb())
-        dbExecute(con, \"CREATE OR REPLACE PERSISTENT SECRET s3_onyxia_connection(
-            TYPE S3,
-            KEY_ID '$AWS_ACCESS_KEY_ID',
-            SECRET '$AWS_SECRET_ACCESS_KEY',
-            REGION '$AWS_DEFAULT_REGION',
-            SESSION_TOKEN '$AWS_SESSION_TOKEN',
-            ENDPOINT '$AWS_S3_ENDPOINT',
-            URL_STYLE '$AWS_PATH_STYLE'
-        );\")
-        dbDisconnect(con, shutdown=TRUE)
-        "
-
-        chown -R ${USERNAME}:${GROUPNAME} ${HOME}/.local/share/R/duckdb/stored_secrets
-    fi
+        Rscript -e 'duckdb_extension_storage(location="shared"); duckdb_secret_storage(location= "shared")'
+        Rscript -e 'ip <- installed.packages()
+	print(ip[,c("Package", "Version")])'
 fi
 
 

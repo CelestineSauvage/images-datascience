@@ -7,7 +7,6 @@ ARG JAVA_VERSION="21"
 ENV JAVA_VERSION=${JAVA_VERSION}
 ENV JAVA_HOME="/usr/lib/jvm/java-$JAVA_VERSION-openjdk-amd64"
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
-
 USER root
 
 COPY --chmod=0755 scripts/ /opt/
