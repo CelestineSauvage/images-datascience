@@ -203,20 +203,12 @@ if command -v duckdb &>/dev/null; then
     fi
 fi
 
-# Install duckdb extensions for R client - see https://github.com/duckdb/duckdb-r/issues/2389 for more informations 
+# Set R extensions and secrets storage to the same place as the cli and python client
+# Print installed packages
 
 if command -v R >/dev/null 2>&1; then
 
-        Rscript -e "
-        library(DBI)
-        con <- dbConnect(duckdb::duckdb())
-        dbExecute(con, \"INSTALL httpfs ;\")
-	dbExecute(con, \"INSTALL aws ;\")
-	dbExecute(con, \"INSTALL postgres ;\")
-	dbExecute(con, \"INSTALL spatial ;\")
-	dbExecute(con, \"INSTALL icu ;\")
-        dbDisconnect(con, shutdown=TRUE)
-        "
+        Rscript -e 'duckdb_extension_storage(location="shared"); duckdb_secret_storage(location= "shared")'
         Rscript -e 'ip <- installed.packages()
 	print(ip[,c("Package", "Version")])'
 fi
