@@ -1,6 +1,6 @@
 library(duckdb)
-duckdb_extension_storage(location="shared")
-duckdb_secret_storage(location="shared")
+duckdb::duckdb_extension_storage(location="shared")
+duckdb::duckdb_secret_storage(location="shared")
 con <- DBI::dbConnect(duckdb::duckdb())
 DBI::dbExecute(con, 'INSTALL httpfs')
 DBI::dbExecute(con, 'INSTALL aws')
