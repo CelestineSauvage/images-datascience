@@ -16,8 +16,25 @@ apt_install gnupg2 software-properties-common wget
 # PPA for git
 add-apt-repository -y ppa:git-core/ppa
 # PPA for postgresql-client
-echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+mkdir -p /usr/share/keyrings
+
+# deprecated
+#echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+#wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/postgresql-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+
+# Pinning postgresql
+cat > /etc/apt/preferences.d/pgdg <<EOF
+Package: *
+Pin: release o=apt.postgresql.org
+Pin-Priority: 100
+
+Package: postgresql-* postgresql-client-* libpq5 libpq-dev
+Pin: release o=apt.postgresql.org
+Pin-Priority: 700
+EOF
 
 # Install system libraries
 apt_install \
